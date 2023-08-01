@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup as bs4
 from selenium import webdriver
-def get_soup(url):
-    #used driver instead of requests, had to fake javascript in order to work
+def request_for_soup(url):
+    #used driver instead of requests because of js requierement
     driver = webdriver.Edge()
     driver.get(url)
     html = driver.page_source
@@ -26,7 +26,7 @@ def get_keywords():
             break
         keywords.append(inp)
 
-def filter_data_for_tiles():
+def filter_data_for_titles():
     pass
 
 if __name__=="__main__":
@@ -34,9 +34,9 @@ if __name__=="__main__":
     url = "https://justjoin.it/?q="
     get_keywords()
     add_keywords_for_url(keywords)
-    soup = get_soup(url)
-    filter_data_for_tiles()
+    soup = request_for_soup(url)
+    filter_data_for_titles()
     print(url)
     #save the soup html into the text file
-    with open('temp.html','w') as f:
+    with open('temp2.html','w') as f:
         f.write(soup.prettify())
