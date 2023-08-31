@@ -1,7 +1,6 @@
 from scrape import filter_data_for_titles
-
 def test_testHTML():
-    file = open("test.html","r")
+    file = open(r"tests\test.html","r")
     assert filter_data_for_titles(file.read()) == {"Junior Embedded Systems Engineer",
                                                    "Embedded Systems Solutions",
                                                    "Junior DevOps Platform Engineer",
@@ -15,3 +14,5 @@ def test_testHTML():
                                                    "Junior DevOps Engineer",
                                                    "Junior Data Engineer (zast�pstwo)",
                                                    "Junior Python Dev (upskill to DevOps)"}
+if __name__=="__main__":
+    test_testHTML()
