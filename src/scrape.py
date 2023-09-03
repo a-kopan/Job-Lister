@@ -1,26 +1,23 @@
-from bs4 import BeautifulSoup as bs4
 from selenium import webdriver
+from selenium.webdriver.edge.options import Options
+from bs4 import BeautifulSoup as bs4
 
 
+def request_for_soup(url):
+    edge_options = Options()
+    edge_options.headless = True
 
-
-def request_for_soup(url) -> bs4:
-    # used driver instead of requests because of js requierement
-    driver = webdriver.Edge()
+    driver = webdriver.Edge(options=edge_options)
     driver.get(url)
+
     html = driver.page_source
-    soup = bs4(html, features="html.parser")
-    driver.quit()
+    soup = bs4(html, "html.parser")
+
     return soup
 
 
 if __name__ == "__main__":
-    keywords = []
-    url = "https://justjoin.it/?q="
-    file = open("test.html", "r")
-    soup = bs4(file.read(), "html.parser")
-    file.close()
-    #get_keywords()
-    #add_keywords_to_url(url,keywords)
-    #request_for_soup(url)
-    print(soup.find_all(["span"], text="Latest"))
+    url = "https://justjoin.it/?q=junior"
+    soup = request_for_soup(url)
+    with open("response_text.html", "w") as f:
+        f.write(soup.prettify())

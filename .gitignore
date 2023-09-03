@@ -36,6 +36,10 @@ MANIFEST
 pip-log.txt
 pip-delete-this-directory.txt
 
+#test output files
+file.txt
+out.txt
+todo.txt
 # Unit test / coverage reports
 htmlcov/
 .tox/
@@ -162,3 +166,4 @@ cython_debug/
 #testing docs
 temp.html
 test.html
+response_text.html
