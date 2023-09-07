@@ -1,8 +1,12 @@
 import filter_data as fd
 import scrape
 import user_interaction as ui
+import GUI_gen as gui
 
 if __name__ == "__main__":
+    gui.generate_GUI()
+    #placeholder for gui testing
+    quit()
     url = "https://justjoin.it/?q="
     keywords = ui.get_keywords()
     view_format = ui.ask_for_format()
@@ -16,3 +20,4 @@ if __name__ == "__main__":
     ui.clear_screen()
     print(f"Generated URL: {url}")
     ui.show_offers(offers, view_format)
+
