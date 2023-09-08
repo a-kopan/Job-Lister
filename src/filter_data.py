@@ -1,10 +1,10 @@
 from bs4 import BeautifulSoup as bs4
 from bs4 import element as bs4_elem
 import user_interaction as ui
-
+import scrape as sc
 
 # instead of changing it to list, just do find_all('div')
-def filter_for_tiles(soup) -> list:
+def filter_for_tiles(soup: bs4) -> list:
     # filter for blocks which contain every information
     # about the specific offer (a div basically)
     tiles = []
@@ -26,7 +26,6 @@ def filter_for_tiles(soup) -> list:
         if type(div) == bs4_elem.Tag:
             tiles.append(div)
     return tiles
-
 
 def extract_data_from_tiles(tiles) -> list:
     # filter the previously-provided divs into
@@ -89,13 +88,33 @@ def extract_data_from_tiles(tiles) -> list:
 
     return listed_data
 
+def get_offers_from_url(url: str, keywords: list) -> list:
+    final_url = add_keywords_to_url(url,keywords)
+    soup = sc.request_for_soup(url)
+    tiles = filter_for_tiles(soup)
+    offers = extract_data_from_tiles(tiles)
+    return offers
 
-if __name__ == "__main__":
-    file = open(r"tests\test.html", "r")
+def get_offers_from_test_file() -> dict:
+    file = open(r"test.html", "r")
     soup = bs4(file.read(), "html.parser")
     file.close()
 
     tiles = filter_for_tiles(soup)
     offers = extract_data_from_tiles(tiles)
+    return offers
+
+def add_keywords_to_url(url: str, keywords: list) -> None:
+    """
+    won't use categories/skills, as using them instead of
+    keywords gives less results
+    """
+    url = url + ";".join(keywords)
+    return url
+
+
+    
+if __name__ == "__main__":
+    offers = get_offers_from_test_file()
     ans = ui.ask_for_format()
     ui.show_offers(offers, ans)

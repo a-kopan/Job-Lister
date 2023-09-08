@@ -12,13 +12,6 @@ def get_keywords() -> list:
     return keywords
 
 
-def add_keywords_to_url(url, keywords) -> None:
-    """
-    won't use categories/skills, as using them instead of
-    keywords gives less results
-    """
-    url = url + ";".join(keywords)
-    return url
 
 
 def clear_screen():
