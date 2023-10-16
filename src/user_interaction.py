@@ -1,6 +1,5 @@
 import os
 
-
 def get_keywords() -> list:
     print("Input q to exit.")
     keywords = []
@@ -10,9 +9,6 @@ def get_keywords() -> list:
             break
         keywords.append(inp)
     return keywords
-
-
-
 
 def clear_screen():
     os.system("cls")

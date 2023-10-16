@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
-import filter_data as fd
+import JustJoinIt.filter_data as fd
+
+
 class MainWindow(tk.Frame):
     def __init__(self,root):
         tk.Frame.__init__(self, root)
@@ -61,8 +63,6 @@ class ResultsWindow(tk.Frame):
         results_treeview.heading("#4", text="Remote")
         results_treeview.heading("#5", text="Requirements")
         results_treeview.heading("#6", text="Link")
-        
-
         
         #config the scrollbar
         scrollbar.config(command=results_treeview.yview)

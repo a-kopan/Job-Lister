@@ -1,5 +1,5 @@
-import filter_data as fd
-import scrape as sc
+import JustJoinIt.filter_data as fd
+import Scraping.scrape_driv as sc
 import user_interaction as ui
 import GUI_gen as gui
 

@@ -1,8 +1,12 @@
+"""
+Scrape the url's html data using Edge webdriver
+Used for websites that require javascript to load its contents
+"""
 from selenium import webdriver
 from selenium.webdriver.edge.options import Options
 from bs4 import BeautifulSoup as bs4
 
-
+#Scrape a given url by using Edge Webdriver
 def request_for_soup(url):
     edge_options = Options()
     edge_options.headless = True

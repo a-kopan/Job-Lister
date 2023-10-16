@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup as bs4
 from bs4 import element as bs4_elem
 import user_interaction as ui
-import scrape as sc
+import Scraping.scrape_driv as sc
 
 # instead of changing it to list, just do find_all('div')
 def filter_for_tiles(soup: bs4) -> list:
@@ -90,7 +90,7 @@ def extract_data_from_tiles(tiles) -> list:
 
 def get_offers_from_url(url: str, keywords: list) -> list:
     final_url = add_keywords_to_url(url,keywords)
-    soup = sc.request_for_soup(url)
+    soup = sc.request_for_soup(final_url)
     tiles = filter_for_tiles(soup)
     offers = extract_data_from_tiles(tiles)
     return offers
@@ -111,7 +111,6 @@ def add_keywords_to_url(url: str, keywords: list) -> None:
     """
     url = url + ";".join(keywords)
     return url
-
 
     
 if __name__ == "__main__":
