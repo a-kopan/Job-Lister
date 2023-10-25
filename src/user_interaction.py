@@ -13,7 +13,6 @@ def get_keywords() -> list:
 def clear_screen():
     os.system("cls")
 
-
 def ask_for_format():
     ans = ""
     while ans not in ["F", "f", "t", "T"]:
@@ -23,9 +22,8 @@ def ask_for_format():
     else:
         return None
 
-
 def show_offers(offers, *args) -> None:
-    if args[0] == None:
+    if len(args) == 0 or args[0]==(None):
         for offer in offers:
             # print each attribute with format Key: value
             for key in offer:

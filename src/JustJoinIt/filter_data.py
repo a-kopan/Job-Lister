@@ -1,14 +1,12 @@
 from bs4 import BeautifulSoup as bs4
 from bs4 import element as bs4_elem
-import user_interaction as ui
-import Scraping.scrape_driv as sc
-
-# instead of changing it to list, just do find_all('div')
+#justjoin
+#instead of changing it to list, just do find_all('div')
 def filter_for_tiles(soup: bs4) -> list:
     # filter for blocks which contain every information
     # about the specific offer (a div basically)
     tiles = []
-    root_div = soup.find(id="root")
+    root_div = soup.find(id="__next")
     div_list = []
 
     # keep only elements that are divs
@@ -27,20 +25,21 @@ def filter_for_tiles(soup: bs4) -> list:
             tiles.append(div)
     return tiles
 
-def extract_data_from_tiles(tiles) -> list:
+def extract_data_from_tiles(tiles: list) -> list:
     # filter the previously-provided divs into
     # dictionaries of data
     listed_data = []
     id_number = 1
     for tile in tiles:
         data = dict()
-        # if there is less than 15 tiles in the results, ignore the last div (not needed)
+        # if there is less than 15 tiles in the results, ignore the last div (empty)
         try:
             working_div = (
                 tile.find("div").find("div").find_all("div", recursive=False)[1]
             )
         except AttributeError:
             break
+        
         name = working_div.find("div").find("div").find("div").string.strip()
 
         salary = (
@@ -88,15 +87,21 @@ def extract_data_from_tiles(tiles) -> list:
 
     return listed_data
 
-def get_offers_from_url(url: str, keywords: list) -> list:
-    final_url = add_keywords_to_url(url,keywords)
-    soup = sc.request_for_soup(final_url)
-    tiles = filter_for_tiles(soup)
-    offers = extract_data_from_tiles(tiles)
-    return offers
+def add_keywords_to_url(keywords: list) -> None:
+    """
+    won't use categories/skills, as using them instead of
+    keywords gives less results
+    """
+    url = "https://justjoin.it/?keyword="
+    url = url + ";".join(keywords)
+    return url
 
-def get_offers_from_test_file() -> dict:
-    file = open(r"test.html", "r")
+def local_test() -> dict:
+    try:
+        file = open(r"tempJustJoinIt.html", "r",encoding='utf-8')
+    except OSError:
+        print("Local file not found.")
+        return
     soup = bs4(file.read(), "html.parser")
     file.close()
 
@@ -104,16 +109,6 @@ def get_offers_from_test_file() -> dict:
     offers = extract_data_from_tiles(tiles)
     return offers
 
-def add_keywords_to_url(url: str, keywords: list) -> None:
-    """
-    won't use categories/skills, as using them instead of
-    keywords gives less results
-    """
-    url = url + ";".join(keywords)
-    return url
-
-    
-if __name__ == "__main__":
-    offers = get_offers_from_test_file()
-    ans = ui.ask_for_format()
-    ui.show_offers(offers, ans)
+if __name__=="__main__":
+    offers = local_test()
+    print(offers)
