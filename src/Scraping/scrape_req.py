@@ -6,13 +6,13 @@ Scrape the url's html data using requests library
 Used for websites that don't require javascript to load its content
 """
 
-#Scrape a given url by using requests
+
+# Scrape a given url by using requests
 def request_for_soup(url):
-    
     response = requests.get(url)
-    
-    if(response.status_code!=200):
+
+    if response.status_code != 200:
         return None
 
-    soup = bs4(response.text,"html.parser")
+    soup = bs4(response.text, "html.parser")
     return soup

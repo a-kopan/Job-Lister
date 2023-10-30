@@ -6,8 +6,9 @@ def add_keywords_to_url(keywords: list):
     head = "https://nofluffjobs.com/pl/?criteria=keyword%3D"
     tail = "&page=1"
 
-    url = head+','.join(keywords)+tail
+    url = head + ",".join(keywords) + tail
     return url
+
 
 def filter_for_tiles(soup: bs4) -> list:
     working_dir = soup.find(
@@ -21,6 +22,7 @@ def filter_for_tiles(soup: bs4) -> list:
     for ind in range(0, len(children), 2):
         tiles.append((children[ind], children[ind + 1]))
     return tiles
+
 
 def extract_data_from_tiles(tile_pairs: list) -> list:
     REGIONS = [
@@ -45,15 +47,15 @@ def extract_data_from_tiles(tile_pairs: list) -> list:
     offers = list()
     for a, popover in tile_pairs:
         temp_dict = {}
-        #title of the offer
+        # title of the offer
         name = a.find(
             "h3", attrs={"data-cy": "title position on the job offer listing"}
         ).text.strip()
-        #the name of the company that posts the offer
+        # the name of the company that posts the offer
         company = a.find(
             "span", attrs={"data-cy": "company name on the job offer listing"}
         ).text.strip()
-        #salary range
+        # salary range
         salary = (
             a.find("span", attrs={"data-cy": "salary ranges on the job offer listing"})
             .text.strip()
@@ -61,26 +63,26 @@ def extract_data_from_tiles(tile_pairs: list) -> list:
             .strip()
             .replace("\xa0", " ")
         )
-        
-        #check if there is a range given in the salary, if there is then change its format
-        if '–' in salary:
+
+        # check if there is a range given in the salary, if there is then change its format
+        if "–" in salary:
             bounds = []
-            for bound in salary.split('–'):
+            for bound in salary.split("–"):
                 bounds.append(bound.strip())
-            salary = ' - '.join(bounds)
-        
-        #for all possible locations (empty if only remote)
+            salary = " - ".join(bounds)
+
+        # for all possible locations (empty if only remote)
         locations = []
-        
-        #flag for remote job accessibility
+
+        # flag for remote job accessibility
         remote = False
-        
-        #url to the job offer
+
+        # url to the job offer
         link = "https://nofluffjobs.com" + a["href"]
-        
-        #dir in which all possible locations (along with remote) are stored
+
+        # dir in which all possible locations (along with remote) are stored
         locations_dir = popover.find("nfj-posting-item-place-popover").find("ul")
-        #extract avaliable locations to list
+        # extract avaliable locations to list
         for li in locations_dir.find_all("li"):
             location = li.find("a").text.strip()
             if not location in REGIONS:
@@ -91,7 +93,12 @@ def extract_data_from_tiles(tile_pairs: list) -> list:
         if "Zdalnie" in locations:
             locations.remove("Zdalnie")
             remote = True
-            
+
+        if len(locations) > 2:
+            locations = f"{locations[0]}, +{len(locations)-1} Locations"
+        elif len(locations) == 2:
+            locations = f"{locations[0]}, +1 Location"
+
         temp_dict["name"] = name
         temp_dict["company"] = company
         temp_dict["salary"] = salary
@@ -102,21 +109,22 @@ def extract_data_from_tiles(tile_pairs: list) -> list:
         offers.append(temp_dict)
     return offers
 
-#whole process of change soup into job offers
+
+# whole process of change soup into job offers
 def soup_to_data(soup: bs4) -> list:
     tiles = filter_for_tiles(soup)
     offers = extract_data_from_tiles(tiles)
     return offers
 
 
-#tests the filters on local file, ignored for right categorisation on github
+# tests the filters on local file, ignored for right categorisation on github
 def local_test():
     try:
         file = open("tempNoFluffJobs.html", "r", encoding="utf-8")
     except OSError:
         print("Local file not found.")
         return []
-    
+
     soup = bs4(file, "html.parser")
     file.close()
 
@@ -125,10 +133,9 @@ def local_test():
     return offers
 
 
-
 if __name__ == "__main__":
     offers = local_test()
     for offer in offers:
-        for (key,val) in offer.items():
-            print(key,": ",val)
+        for key, val in offer.items():
+            print(key, ": ", val)
         print("----------")

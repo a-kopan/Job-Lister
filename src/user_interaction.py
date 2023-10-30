@@ -1,5 +1,6 @@
 import os
 
+
 def get_keywords() -> list:
     print("Input q to exit.")
     keywords = []
@@ -10,8 +11,10 @@ def get_keywords() -> list:
         keywords.append(inp)
     return keywords
 
+
 def clear_screen():
     os.system("cls")
+
 
 def ask_for_format():
     ans = ""
@@ -22,8 +25,9 @@ def ask_for_format():
     else:
         return None
 
+
 def show_offers(offers, *args) -> None:
-    if len(args) == 0 or args[0]==(None):
+    if len(args) == 0 or args[0] == (None):
         for offer in offers:
             # print each attribute with format Key: value
             for key in offer:

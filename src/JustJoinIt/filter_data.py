@@ -1,6 +1,8 @@
 from bs4 import BeautifulSoup as bs4
 from bs4 import element as bs4_elem
-#justjoin
+
+
+# justjoin
 def add_keywords_to_url(keywords: list) -> None:
     """
     won't use categories/skills, as using them instead of
@@ -10,28 +12,19 @@ def add_keywords_to_url(keywords: list) -> None:
     url = url + ";".join(keywords)
     return url
 
+
 def filter_for_tiles(soup: bs4) -> list:
     # filter for blocks which contain every information
     # about the specific offer (a div basically)
     tiles = []
-    root_div = soup.find(id="__next")
-    div_list = []
-
-    # keep only elements that are divs
-    for elem in root_div:
-        if elem.name == "div":
-            div_list.append(elem)
-
-    # nest it 3 times to get the div in which the data about offers is stored
-    working_div = div_list[-2].find("div").find("div")
-    temp_dirs = [x for x in working_div.children if type(x) == bs4_elem.Tag]
-
-    # picking specific div and going through nested divs again
-    working_div = temp_dirs[-1].find("div").find("div").find("div")
-    for div in working_div.children:
-        if type(div) == bs4_elem.Tag:
-            tiles.append(div)
+    working_div = soup.find(id="__next").find(
+        "div", attrs={"data-test-id": "virtuoso-item-list"}
+    )
+    for div in working_div.find_all("div", recursive=False):
+        tiles.append(div)
+    tiles.pop()
     return tiles
+
 
 def extract_data_from_tiles(tiles: list) -> list:
     # filter the previously-provided divs into
@@ -39,51 +32,50 @@ def extract_data_from_tiles(tiles: list) -> list:
     listed_data = []
     id_number = 1
     for tile in tiles:
+        tile: bs4_elem.Tag = tile.find("div").find("div")
         temp_dict = dict()
-        # if there is less than 15 tiles in the results, ignore the last div (empty)
-        try:
-            working_div = (
-                tile.find("div").find("div").find_all("div", recursive=False)[1]
-            )
-        except AttributeError:
-            break
-        
-        name = working_div.find("div").find("div").find("div").string.strip()
 
-        salary = (
-            working_div.find("div")
+        info_div: bs4_elem.Tag = (
+            tile.find_all("div", recursive=False)[1]
             .find_all("div", recursive=False)[1]
             .find("div")
             .find("div")
-            .string.strip()
         )
+        name = tile.find("h2").text.strip()
 
+        # find the salary
+        salary = None
+        spans = info_div.find_all("span")
+        for span in spans:
+            if "PLN" in span.text:
+                salary = span.text.strip().rstrip(" PLN").replace("K", " 000")
+
+        # If salary is given in different currency, but given in PLN, then the dot appears
+        if salary and "." in salary:
+            salary = salary.replace(".", " ").replace(" 000", "00")
+
+        # find the locations
         locations = (
-            working_div.find_all("div", recursive=False)[1]
-            .find_all("div", recursive=False)[1]
-            .find("span")
-            .next_element.strip()
+            info_div.find_all("div", recursive=False)[2].find("div").text.strip()
         )
 
-        remote = (
-            tile.find(
-                "span", string="\n                  Fully Remote\n                 "
-            )
-            != None
-        )
-
-        requirements = working_div.find_all("div", recursive=False)[1].find_all(
-            "div", recursive=False
-        )[2]
-
-        requirements = [
-            x.next_element.strip() for x in list(requirements.find_all("span"))
+        # get rid of all uneccessary white signs when more locations were provided
+        locations = locations.split("\n")
+        locations = [
+            part.strip()
+            for part in locations
+            if part.strip() != "Location" and part.strip() != "Locations"
         ]
+        locations = "".join(locations)
+        remote = bool(
+            info_div.find_all("div", recursive=False)[2].find("span", recursive=False)
+        )
+        company = tile.find("span").text.strip()
 
         link = "https://justjoin.it" + tile.find("a")["href"]
 
         temp_dict["name"] = name
-        #temp_dict["company"] = company
+        temp_dict["company"] = company
         temp_dict["salary"] = salary
         temp_dict["locations"] = locations
         temp_dict["remote"] = remote
@@ -94,25 +86,31 @@ def extract_data_from_tiles(tiles: list) -> list:
 
     return listed_data
 
-#whole process of change soup into job offers
+
+# whole process of change soup into job offers
 def soup_to_data(soup: bs4) -> list:
     tiles = filter_for_tiles(soup)
     offers = extract_data_from_tiles(tiles)
     return offers
 
+
 def local_test() -> dict:
     try:
-        file = open(r"tempJustJoinIt.html", "r",encoding='utf-8')
+        file = open(r"tempJustJoinIt.html", "r", encoding="utf-8")
     except OSError:
         print("Local file not found.")
         return
     soup = bs4(file.read(), "html.parser")
     file.close()
-    
+
     offers = soup_to_data(soup)
-    
+
     return offers
 
-if __name__=="__main__":
+
+if __name__ == "__main__":
     offers = local_test()
-    print(offers)
+    for offer in offers:
+        for x, y in offer.items():
+            print(f"{x}: {y}")
+        print("----------------------")

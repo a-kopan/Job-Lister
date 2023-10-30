@@ -7,28 +7,30 @@ import GUI_gen as gui
 
 if __name__ == "__main__":
     offers = []
-    #get the keywords
+    # get the keywords
     keywords = ui.get_keywords()
-    #establish the way of saving the data (terminal/text file)
-    
+    # establish the way of saving the data (terminal/text file)
+
     display_format = ui.ask_for_format()
-    
-    #for each service:
+
+    # for each service:
     req_services = [fd_nfj]
     driv_services = [fd_jj]
-    
-    #treat services differently based on whether they have to use a driver or a http request
-    
+
+    # treat services differently based on whether they have to use a driver or a http request
+    for service in driv_services:
+        URL = service.add_keywords_to_url(keywords)
+        soup = sc_d.request_for_soup(URL)
+        data = service.soup_to_data(soup)
+        offers += data
+
     for service in req_services:
         URL = service.add_keywords_to_url(keywords)
         soup = sc_r.request_for_soup(URL)
         data = service.soup_to_data(soup)
-        offers+=data
-    
-    #add id number for each offer
-    
+        offers += data
 
-    #display the offers
-    ui.show_offers(offers,display_format)
+    # add id number for each offer
 
-
+    # display the offers
+    ui.show_offers(offers, display_format)
