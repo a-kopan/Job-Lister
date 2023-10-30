@@ -1,7 +1,15 @@
 from bs4 import BeautifulSoup as bs4
 from bs4 import element as bs4_elem
 #justjoin
-#instead of changing it to list, just do find_all('div')
+def add_keywords_to_url(keywords: list) -> None:
+    """
+    won't use categories/skills, as using them instead of
+    keywords gives less results
+    """
+    url = "https://justjoin.it/?keyword="
+    url = url + ";".join(keywords)
+    return url
+
 def filter_for_tiles(soup: bs4) -> list:
     # filter for blocks which contain every information
     # about the specific offer (a div basically)
@@ -31,7 +39,7 @@ def extract_data_from_tiles(tiles: list) -> list:
     listed_data = []
     id_number = 1
     for tile in tiles:
-        data = dict()
+        temp_dict = dict()
         # if there is less than 15 tiles in the results, ignore the last div (empty)
         try:
             working_div = (
@@ -50,14 +58,14 @@ def extract_data_from_tiles(tiles: list) -> list:
             .string.strip()
         )
 
-        location = (
+        locations = (
             working_div.find_all("div", recursive=False)[1]
             .find_all("div", recursive=False)[1]
             .find("span")
             .next_element.strip()
         )
 
-        is_remote = (
+        remote = (
             tile.find(
                 "span", string="\n                  Fully Remote\n                 "
             )
@@ -74,27 +82,23 @@ def extract_data_from_tiles(tiles: list) -> list:
 
         link = "https://justjoin.it" + tile.find("a")["href"]
 
-        data["id"] = id_number
-        data["name"] = name
-        data["salary"] = salary
-        data["location"] = location
-        data["remote"] = is_remote
-        data["requirements"] = requirements
-        data["link"] = link
+        temp_dict["name"] = name
+        #temp_dict["company"] = company
+        temp_dict["salary"] = salary
+        temp_dict["locations"] = locations
+        temp_dict["remote"] = remote
+        temp_dict["link"] = link
 
-        listed_data.append(data)
+        listed_data.append(temp_dict)
         id_number += 1
 
     return listed_data
 
-def add_keywords_to_url(keywords: list) -> None:
-    """
-    won't use categories/skills, as using them instead of
-    keywords gives less results
-    """
-    url = "https://justjoin.it/?keyword="
-    url = url + ";".join(keywords)
-    return url
+#whole process of change soup into job offers
+def soup_to_data(soup: bs4) -> list:
+    tiles = filter_for_tiles(soup)
+    offers = extract_data_from_tiles(tiles)
+    return offers
 
 def local_test() -> dict:
     try:
@@ -104,9 +108,9 @@ def local_test() -> dict:
         return
     soup = bs4(file.read(), "html.parser")
     file.close()
-
-    tiles = filter_for_tiles(soup)
-    offers = extract_data_from_tiles(tiles)
+    
+    offers = soup_to_data(soup)
+    
     return offers
 
 if __name__=="__main__":

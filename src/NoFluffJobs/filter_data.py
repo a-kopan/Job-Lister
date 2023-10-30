@@ -45,35 +45,42 @@ def extract_data_from_tiles(tile_pairs: list) -> list:
     offers = list()
     for a, popover in tile_pairs:
         temp_dict = {}
-
+        #title of the offer
         name = a.find(
             "h3", attrs={"data-cy": "title position on the job offer listing"}
         ).text.strip()
-        
+        #the name of the company that posts the offer
         company = a.find(
             "span", attrs={"data-cy": "company name on the job offer listing"}
         ).text.strip()
-        
+        #salary range
         salary = (
-            
             a.find("span", attrs={"data-cy": "salary ranges on the job offer listing"})
             .text.strip()
             .rstrip("PLN")
             .strip()
             .replace("\xa0", " ")
         )
+        
+        #check if there is a range given in the salary, if there is then change its format
         if '–' in salary:
             bounds = []
             for bound in salary.split('–'):
                 bounds.append(bound.strip())
             salary = ' - '.join(bounds)
         
+        #for all possible locations (empty if only remote)
         locations = []
+        
+        #flag for remote job accessibility
         remote = False
+        
+        #url to the job offer
         link = "https://nofluffjobs.com" + a["href"]
-
+        
+        #dir in which all possible locations (along with remote) are stored
         locations_dir = popover.find("nfj-posting-item-place-popover").find("ul")
-
+        #extract avaliable locations to list
         for li in locations_dir.find_all("li"):
             location = li.find("a").text.strip()
             if not location in REGIONS:
@@ -84,7 +91,7 @@ def extract_data_from_tiles(tile_pairs: list) -> list:
         if "Zdalnie" in locations:
             locations.remove("Zdalnie")
             remote = True
-
+            
         temp_dict["name"] = name
         temp_dict["company"] = company
         temp_dict["salary"] = salary
@@ -95,25 +102,33 @@ def extract_data_from_tiles(tile_pairs: list) -> list:
         offers.append(temp_dict)
     return offers
 
+#whole process of change soup into job offers
 def soup_to_data(soup: bs4) -> list:
     tiles = filter_for_tiles(soup)
     offers = extract_data_from_tiles(tiles)
     return offers
 
+
+#tests the filters on local file, ignored for right categorisation on github
 def local_test():
     try:
         file = open("tempNoFluffJobs.html", "r", encoding="utf-8")
     except OSError:
         print("Local file not found.")
-        return None
+        return []
+    
     soup = bs4(file, "html.parser")
     file.close()
 
-    tiles = filter_for_tiles(soup)
-    offers = extract_data_from_tiles(tiles)
+    offers = soup_to_data(soup)
+
     return offers
+
+
 
 if __name__ == "__main__":
     offers = local_test()
     for offer in offers:
-        print(offer['locations'])
+        for (key,val) in offer.items():
+            print(key,": ",val)
+        print("----------")
