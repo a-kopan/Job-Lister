@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 import NoFluffJobs.filter_data as nfj
 from Scraping import scrape_req
+from data_to_offers import data_to_offers
 
 
 class MainWindow(tk.Frame):
@@ -39,11 +40,9 @@ class MainWindow(tk.Frame):
         # check for empty input
         if keywords == [""]:
             return
-
-        URL = nfj.add_keywords_to_url(keywords)
-        soup = scrape_req.request_for_soup(URL)
-        offers = nfj.soup_to_data(soup)
-        self.open_new_window(offers)
+        else:
+            offers = data_to_offers(keywords)
+            self.open_new_window(offers)
 
     def open_new_window(self, offers):
         new_window = tk.Toplevel(self.root)
@@ -66,7 +65,7 @@ class ResultsWindow(tk.Frame):
         # result listbox
         results_treeview = ttk.Treeview(
             root,
-            columns=("Title", "Salary", "Locations", "Remote", "Requirements", "Link"),
+            columns=("Title", "Salary", "Locations", "Remote", "Companies", "Link"),
         )
         results_treeview.pack(fill=tk.BOTH, expand=True)
 
@@ -77,7 +76,7 @@ class ResultsWindow(tk.Frame):
         results_treeview.heading("#2", text="Salary")
         results_treeview.heading("#3", text="Locations")
         results_treeview.heading("#4", text="Remote")
-        results_treeview.heading("#5", text="Requirements")
+        results_treeview.heading("#5", text="Companies")
         results_treeview.heading("#6", text="Link")
 
         # config the scrollbar

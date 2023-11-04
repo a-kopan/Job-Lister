@@ -31,4 +31,4 @@ def test_all():
 
 
 if __name__ == "__main__":
-    ui.show_offers(test_justjoin())
+    ui.show_offers(test_nofluff())
